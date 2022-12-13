@@ -1,4 +1,4 @@
-import flet
+import flet as ft
 from flet import (
     Column,
     Container,
@@ -9,280 +9,76 @@ from flet import (
     UserControl,
     border_radius,
     colors,
+    Image
 )
 
+import requests
+import json
+def main(page: ft.Page):
+    lv = ft.ListView(expand=True, spacing=10)
+    
+    txt_country = ft.TextField(label="My country is ...")
+    txt_capital = ft.TextField(label="and the capital city is ...")
+    color_dropdown = ft.Dropdown(
+        width=100,
+        options=[ft.dropdown.Option("Red"),
+        ft.dropdown.Option("Green"),
+        ft.dropdown.Option("Blue")],
+    )
 
-class CalculatorApp(UserControl):
-    def build(self):
-        self.reset()
-        self.result = Text(value="0", color=colors.WHITE, size=20)
-
-        # application's root control (i.e. "view") containing all other controls
-        return Container(
-            width=300,
-            bgcolor=colors.BLACK,
-            border_radius=border_radius.all(20),
-            padding=20,
-            content=Column(
-                controls=[
-                    Row(controls=[self.result], alignment="end"),
-                    Row(
-                        controls=[
-                            ElevatedButton(
-                                text="AC",
-                                bgcolor=colors.BLUE_GREY_100,
-                                color=colors.BLACK,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="AC",
-                            ),
-                            ElevatedButton(
-                                text="+/-",
-                                bgcolor=colors.BLUE_GREY_100,
-                                color=colors.BLACK,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="+/-",
-                            ),
-                            ElevatedButton(
-                                text="%",
-                                bgcolor=colors.BLUE_GREY_100,
-                                color=colors.BLACK,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="%",
-                            ),
-                            ElevatedButton(
-                                text="/",
-                                bgcolor=colors.ORANGE,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="/",
-                            ),
-                        ],
-                    ),
-                    Row(
-                        controls=[
-                            ElevatedButton(
-                                text="7",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="7",
-                            ),
-                            ElevatedButton(
-                                text="8",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="8",
-                            ),
-                            ElevatedButton(
-                                text="9",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="9",
-                            ),
-                            ElevatedButton(
-                                text="*",
-                                bgcolor=colors.ORANGE,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="*",
-                            ),
-                        ]
-                    ),
-                    Row(
-                        controls=[
-                            ElevatedButton(
-                                text="4",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="4",
-                            ),
-                            ElevatedButton(
-                                text="5",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="5",
-                            ),
-                            ElevatedButton(
-                                text="6",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="6",
-                            ),
-                            ElevatedButton(
-                                text="-",
-                                bgcolor=colors.ORANGE,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="-",
-                            ),
-                        ]
-                    ),
-                    Row(
-                        controls=[
-                            ElevatedButton(
-                                text="1",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="1",
-                            ),
-                            ElevatedButton(
-                                text="2",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="2",
-                            ),
-                            ElevatedButton(
-                                text="3",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="3",
-                            ),
-                            ElevatedButton(
-                                text="+",
-                                bgcolor=colors.ORANGE,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="+",
-                            ),
-                        ]
-                    ),
-                    Row(
-                        controls=[
-                            ElevatedButton(
-                                text="0",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=2,
-                                on_click=self.button_clicked,
-                                data="0",
-                            ),
-                            ElevatedButton(
-                                text=".",
-                                bgcolor=colors.WHITE24,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data=".",
-                            ),
-                            ElevatedButton(
-                                text="=",
-                                bgcolor=colors.ORANGE,
-                                color=colors.WHITE,
-                                expand=1,
-                                on_click=self.button_clicked,
-                                data="=",
-                            ),
-                        ]
-                    ),
-                ],
-            ),
-        )
-
-    def button_clicked(self, e):
-        data = e.control.data
-        if self.result.value == "Error" or data == "AC":
-            self.result.value = "0"
-            self.reset()
-
-        elif data in ("1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "."):
-            if self.result.value == "0" or self.new_operand == True:
-                self.result.value = data
-                self.new_operand = False
-            else:
-                self.result.value = self.result.value + data
-
-        elif data in ("+", "-", "*", "/"):
-            self.result.value = self.calculate(
-                self.operand1, float(self.result.value), self.operator
-            )
-            self.operator = data
-            if self.result.value == "Error":
-                self.operand1 = "0"
-            else:
-                self.operand1 = float(self.result.value)
-            self.new_operand = True
-
-        elif data in ("="):
-            self.result.value = self.calculate(
-                self.operand1, float(self.result.value), self.operator
-            )
-            self.reset()
-
-        elif data in ("%"):
-            self.result.value = float(self.result.value) / 100
-            self.reset()
-
-        elif data in ("+/-"):
-            if float(self.result.value) > 0:
-                self.result.value = "-" + str(self.result.value)
-
-            elif float(self.result.value) < 0:
-                self.result.value = str(
-                    self.format_number(abs(float(self.result.value)))
+    def getUsers(e):
+        sURL = "https://d9291055.eu-gb.apigw.appdomain.cloud/main/contacts" #"https://jsonplaceholder.typicode.com/todos"
+        response = requests.get(sURL)
+        users = response.json()
+  
+        for user in users: # list of dictionaries)
+            lv.controls.append(ft.Text(user["title"]),
+           # icon=Image(src="https://cdn-icons-png.flaticon.com/512/1384/1384033.png", fit="contain"),
                 )
+        
+        page.update()
 
-        self.update()
+    def getCloudCountries(e):
+        sURL = "https://d9291055.eu-gb.apigw.appdomain.cloud/creativity/countries" 
 
-    def format_number(self, num):
-        if num % 1 == 0:
-            return int(num)
+        header = {"content-type": "application/json"}
+        #params={'q': 'requests+language:python'}
+        response = requests.get(sURL, headers=header)
+
+        response_data_raw = response.json()
+        countries_raw = response_data_raw["countries"]
+        if int(countries_raw["total_rows"]) > 0:
+            countries = countries_raw["rows"]
+            for country in countries: # list of dictionaries
+                country_obj = country["doc"]
+                lv.controls.append(ft.Text(country_obj["capital"]))
+
+            page.update()
+
+    def saveCloudCountries(country, capital):
+        sURL = "https://d9291055.eu-gb.apigw.appdomain.cloud/creativity/countries" 
+
+        header = {"content-type": "application/json"}
+        params={"country": country}
+        response = requests.post(sURL, headers=header, data=params)
+        print(response)
+
+
+    def btn_save(e):
+        if not txt_country.value:
+            txt_country.error_text = "Please enter a name for a country. Be creative!"
+            page.update()
+
         else:
-            return num
+            country = txt_country.value
+            capital = txt_capital.value
+            saveCloudCountries(country, capital)
+            #selected_colour=color_dropdown.value
+            #page.clean()
+            page.add(ft.Text(f"{country} is a great name for a country!"))
 
-    def calculate(self, operand1, operand2, operator):
+    
+    page.add(txt_country, txt_capital, lv, ft.ElevatedButton("Save your creativity!", on_click=btn_save), ft.ElevatedButton("See other people's creativity", on_click=getCloudCountries))
 
-        if operator == "+":
-            return self.format_number(operand1 + operand2)
-
-        elif operator == "-":
-            return self.format_number(operand1 - operand2)
-
-        elif operator == "*":
-            return self.format_number(operand1 * operand2)
-
-        elif operator == "/":
-            if operand2 == 0:
-                return "Error"
-            else:
-                return self.format_number(operand1 / operand2)
-
-    def reset(self):
-        self.operator = "+"
-        self.operand1 = 0
-        self.new_operand = True
-
-
-def main(page: Page):
-    page.title = "Calc App"
-
-    # create application instance
-    calc = CalculatorApp()
-
-    # add application's root control to the page
-    page.add(calc)
-
-flet.app(port=8550, target=main)
+#ft.app(target=main)
+ft.app(port=8550, target=main)
